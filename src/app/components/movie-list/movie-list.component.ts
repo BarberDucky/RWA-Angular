@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MovieService } from '../../services/movie.service';
 import { Movie } from '../../models/movie'
+import {Store} from '@ngrx/store'
+import { State } from '../../store';
+import { Observable } from 'rxjs';
+import { SelectMovie } from '../../store/actions';
 
 @Component({
   selector: 'app-movie-list',
@@ -8,16 +12,15 @@ import { Movie } from '../../models/movie'
   styleUrls: ['./movie-list.component.css']
 })
 export class MovieListComponent implements OnInit {
-  movies: Movie[]
-  selected: Movie
-  constructor(movieService: MovieService) {
-    this.movies = movieService.getAll()
-    this.selected = null
+  movies$: Observable<Movie[]>
+  selected$: Observable<Movie>
+  constructor(private store$: Store<State>) {
+    this.movies$ = this.store$.select(state => state.movies)
+    this.selected$ = this.store$.select(state => state.selectedMovie)
   }
 
-  onSelectMovie(event){
-    console.log(event)
-    this.selected = event
+  onSelectMovie(movie: Movie){
+    this.store$.dispatch(new SelectMovie(movie))
   }
 
   ngOnInit() {
